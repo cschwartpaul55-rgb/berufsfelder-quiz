@@ -1,0 +1,37 @@
+<!doctype html><html lang="de"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Mein Berufsfeld-Navigator</title><style>body{font-family:system-ui,Arial;background:#f3f6fb;color:#17283d;margin:0}main{max-width:760px;margin:35px auto;padding:20px}.panel{background:white;border-radius:18px;padding:28px;box-shadow:0 8px 28px #152b4715}h1{margin-top:0}button{border:1px solid #adc3df;background:#edf4ff;border-radius:10px;padding:14px 18px;cursor:pointer;font-size:1rem;margin:6px}button:hover{background:#d8e9ff}.primary{background:#245f9e;color:white}.primary:hover{background:#184d85}small,.muted{color:#596d82}.pill{display:inline-block;background:#e6f2e9;padding:6px 12px;border-radius:30px}.result{border-left:5px solid #39996d;background:#f0faf4;padding:16px;border-radius:8px}#history{font-size:.85rem;color:#63758a;margin-top:20px}label{display:block;margin-top:15px}a{color:#145b9c}</style><main><div class="panel"><h1>Mein Berufsfeld-Navigator</h1><p class="muted">Drei kurze Entscheidungsbäume zu deinen sozialen, personalen und fachlichen Kompetenzen. Nutze dein Stärken- und Schwächenprofil als Orientierung. Es gibt keine richtigen oder falschen Antworten.</p><div id="app"></div></div></main><script>
+const trees={
+sozial:{title:'Soziale Kompetenzen',start:'s1',nodes:{
+s1:['Kannst du dich gut in die Gefühle und Bedürfnisse anderer Menschen hineinversetzen?','s2','s3'],
+s2:['Kannst du Menschen auch in belastenden Situationen ruhig und zuverlässig unterstützen?','s4','s5'],
+s4:['Kannst du genau beobachten und sorgfältig nach festen Regeln handeln?','Gesundheit','Soziales, Pädagogik'],
+s5:['Kannst du schwierige Sachverhalte geduldig und verständlich erklären?','Soziales, Pädagogik','Dienstleistung'],
+s3:['Kannst du Menschen überzeugend beraten und ihre Fragen verständlich beantworten?','s6','s7'],
+s6:['Kannst du dabei auch sachlich verhandeln und wirtschaftliche Ziele berücksichtigen?','Wirtschaft, Verwaltung','Dienstleistung'],
+s7:['Kannst du die Zusammenarbeit in einer Gruppe gut koordinieren und Absprachen einhalten?','Verkehr, Logistik','Produktion, Fertigung']
+}},
+personal:{title:'Personale Kompetenzen',start:'p1',nodes:{
+p1:['Kannst du eigenständig neue Ideen entwickeln und umsetzen?','p2','p3'],
+p2:['Kannst du Formen, Farben oder räumliche Entwürfe besonders gut gestalten?','Kunst, Kultur, Gestaltung','p4'],
+p4:['Kannst du Inhalte für andere anschaulich und verständlich aufbereiten?','Medien','Technik, Technologiefelder'],
+p3:['Kannst du Arbeitsabläufe zuverlässig planen und organisieren?','p5','p6'],
+p5:['Behältst du bei mehreren Terminen, Aufgaben oder Lieferungen den Überblick?','Verkehr, Logistik','Wirtschaft, Verwaltung'],
+p6:['Kannst du bei körperlich anstrengenden und wechselnden Aufgaben ausdauernd arbeiten?','p7','p8'],
+p7:['Kannst du sorgfältig mit lebenden Pflanzen, Tieren oder natürlichen Materialien umgehen?','Landwirtschaft, Natur, Umwelt','Produktion, Fertigung'],
+p8:['Kannst du geduldig und konzentriert an einer schwierigen Aufgabe weiterarbeiten?','Naturwissenschaften','Dienstleistung']
+}},
+fachlich:{title:'Fachliche Kompetenzen',start:'f1',nodes:{
+f1:['Gehören mathematisches und logisches Denken zu deinen Stärken?','f2','f3'],
+f2:['Kannst du gut mit Computern, Programmen oder digitalen Systemen umgehen?','f4','f5'],
+f4:['Kannst du Fehler in digitalen Abläufen systematisch finden und beheben?','IT, Computer','Technik, Technologiefelder'],
+f5:['Kannst du naturwissenschaftliche Beobachtungen auswerten und Zusammenhänge erklären?','f6','f7'],
+f6:['Kannst du Versuche sorgfältig planen, durchführen und dokumentieren?','Naturwissenschaften','Elektro'],
+f7:['Kannst du räumliche Formen und technische Zeichnungen gut verstehen?','Bau, Architektur, Vermessung','Metall, Maschinenbau'],
+f3:['Gehören handwerkliche und praktische Fertigkeiten zu deinen Stärken?','f8','f9'],
+f8:['Kannst du elektrische Bauteile und einfache Schaltungen gut verstehen?','Elektro','f10'],
+f10:['Kannst du Maschinen und mechanische Zusammenhänge gut verstehen?','Metall, Maschinenbau','Produktion, Fertigung'],
+f9:['Kannst du mit Sprache und Texten besonders sicher umgehen?','f11','f12'],
+f11:['Kannst du gesellschaftliche oder geschichtliche Zusammenhänge gut erklären und Texte analysieren?','Gesellschafts-, Geisteswissenschaften','Medien'],
+f12:['Kannst du visuelle Ideen und Entwürfe gestalterisch umsetzen?','Kunst, Kultur, Gestaltung','Dienstleistung']
+}}};
+let current=null,node=null,steps=[],results={};const app=document.getElementById('app');function esc(x){return x.replaceAll('&','&amp;').replaceAll('<','&lt;')};function home(){current=null;app.innerHTML='<p>Wähle einen Kompetenzbereich. Du kannst alle drei nacheinander bearbeiten.</p>'+Object.entries(trees).map(([k,t])=>`<button onclick="start('${k}')">${t.title}${results[k]?' ✓':''}</button>`).join('')+(Object.keys(results).length?'<h3>Deine bisherigen Ergebnisse</h3>'+Object.entries(results).map(([k,v])=>`<p><b>${trees[k].title}:</b> ${esc(v)}</p>`).join(''):'')+'<p><small>Hinweis: Ein Berufsfeld ist nur ein Recherchevorschlag, kein Eignungsurteil. Auch andere Berufsfelder können passen.</small></p>'}function start(k){current=k;node=trees[k].start;steps=[];render()}function render(){let t=trees[current],q=t.nodes[node];app.innerHTML=`<span class="pill">${t.title}</span><p><small>Frage ${steps.length+1}</small></p><h2>${esc(q[0])}</h2><p>Beziehe dich auf dein ausgefülltes Kompetenzprofil.</p><button class="primary" onclick="answer(true)">Ja</button><button onclick="answer(false)">Nein</button><p><button onclick="back()">← Zurück</button><button onclick="home()">Zur Übersicht</button></p><div id="history">${steps.map(s=>esc(s.q)+' — '+(s.a?'Ja':'Nein')).join('<br>')}</div>`}function answer(a){let q=trees[current].nodes[node];steps.push({node,q:q[0],a});let next=q[a?1:2];if(trees[current].nodes[next]){node=next;render()}else{results[current]=next;app.innerHTML=`<span class="pill">${trees[current].title}</span><h2>Dein mögliches Berufsfeld</h2><div class="result"><h2>${esc(next)}</h2><p>Prüfe jetzt: Welche zwei Kompetenzen aus deinem Profil passen zu typischen Tätigkeiten in diesem Berufsfeld? Was müsstest du noch lernen?</p></div><p><a href="https://www.arbeitsagentur.de/bildung/berufe-und-wege/berufsfelder" target="_blank" rel="noopener">Berufsfelder bei der Bundesagentur für Arbeit entdecken</a></p><button class="primary" onclick="home()">Weitere Kompetenzbereiche bearbeiten</button><button onclick="back()">← Letzte Antwort ändern</button><p><small>Dieses Ergebnis ist eine vereinfachte Orientierung und keine Aussage über deine tatsächliche Berufseignung.</small></p>`}}function back(){if(!steps.length){home();return}let s=steps.pop();node=s.node;render()}home();
+</script></html>
